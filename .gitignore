@@ -1,0 +1,62 @@
+# Go 相关
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# 构建目录
+build/
+release/
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 日志文件
+*.log
+
+# 环境配置文件
+.env
+
+# 测试覆盖率文件
+coverage.out
+coverage.html
+
+# IDE 相关
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# 临时文件
+*.tmp
+*.temp
+
+# 备份文件
+*_backup_*
+*.bak
+
+# 依赖目录（如果使用 vendor）
+vendor/
+
+# 二进制文件
+gopass
+gopass.exe
+gopass_unix

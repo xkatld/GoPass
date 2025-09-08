@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-lock text-indigo-600 text-xl mr-2"></i>
+                        <h1 class="text-xl font-bold text-gray-900">GoPass</h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700">欢迎，<span id="username"></span></span>
+                    <button onclick="logout()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="ml-1">退出</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- 工具栏 -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex-1 min-w-0">
+                        <h2 class="text-lg font-medium text-gray-900">密码管理</h2>
+                        <p class="mt-1 text-sm text-gray-500">管理您的所有账号密码</p>
+                    </div>
+                    <div class="mt-4 sm:mt-0 sm:ml-4 flex space-x-3">
+                        <button onclick="showAddPasswordModal()" 
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-plus mr-2"></i>
+                            添加密码
+                        </button>
+                        <button onclick="showGeneratePasswordModal()" 
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-key mr-2"></i>
+                            生成密码
+                        </button>
+                        <div class="relative">
+                            <button onclick="toggleImportExportMenu()" 
+                                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <i class="fas fa-exchange-alt mr-2"></i>
+                                导入/导出
+                                <i class="fas fa-chevron-down ml-2"></i>
+                            </button>
+                            <div id="importExportMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                                <div class="py-1">
+                                    <button onclick="exportData()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-download mr-2"></i>导出数据
+                                    </button>
+                                    <button onclick="showImportModal()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-upload mr-2"></i>导入数据
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 搜索和筛选 -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="搜索密码..." 
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <select id="categoryFilter" 
+                                class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                            <option value="">所有分类</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 密码列表 -->
+        <div>
+            <div id="passwordList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 密码条目将通过JavaScript动态加载 -->
+            </div>
+            <div id="emptyState" class="hidden text-center py-12">
+                <i class="fas fa-lock text-gray-400 text-4xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">还没有密码条目</h3>
+                <p class="text-gray-500 mb-4">开始添加您的第一个密码吧</p>
+                <button onclick="showAddPasswordModal()"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                    <i class="fas fa-plus mr-2"></i>
+                    添加密码
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑密码模态框 -->
+    <div id="passwordModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4" id="modalTitle">添加密码</h3>
+                <form id="passwordForm" onsubmit="handlePasswordSubmit(event)">
+                    <input type="hidden" id="passwordId" value="">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">标题 *</label>
+                            <input type="text" id="title" required 
+                                   class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">网站</label>
+                            <input type="url" id="website" 
+                                   class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">用户名</label>
+                            <input type="text" id="passwordUsername" 
+                                   class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">密码 *</label>
+                            <div class="mt-1 relative">
+                                <input type="password" id="passwordField" required 
+                                       class="block w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                <button type="button" onclick="togglePasswordVisibility('passwordField')" 
+                                        class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <i class="fas fa-eye text-gray-400"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">分类</label>
+                            <input type="text" id="category" 
+                                   class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">备注</label>
+                            <textarea id="notes" rows="3" 
+                                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closePasswordModal()" 
+                                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            取消
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                            保存
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 生成密码模态框 -->
+    <div id="generatePasswordModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">生成密码</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">长度</label>
+                        <input type="range" id="passwordLength" min="4" max="64" value="12" 
+                               class="mt-1 block w-full" oninput="updateLengthDisplay()">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>4</span>
+                            <span id="lengthDisplay">12</span>
+                            <span>64</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="includeUpper" checked class="mr-2">
+                            <span class="text-sm">包含大写字母 (A-Z)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="includeLower" checked class="mr-2">
+                            <span class="text-sm">包含小写字母 (a-z)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="includeNumbers" checked class="mr-2">
+                            <span class="text-sm">包含数字 (0-9)</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="includeSymbols" class="mr-2">
+                            <span class="text-sm">包含符号 (!@#$%^&*)</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">生成的密码</label>
+                        <div class="relative">
+                            <input type="text" id="generatedPassword" readonly 
+                                   class="block w-full border border-gray-300 rounded-md px-3 py-2 pr-20 bg-gray-50">
+                            <div class="absolute inset-y-0 right-0 flex items-center space-x-1 pr-2">
+                                <button type="button" onclick="copyToClipboard('generatedPassword')" 
+                                        class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button type="button" onclick="generateNewPassword()" 
+                                        class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-refresh"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="passwordStrength" class="mt-2 text-sm"></div>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeGeneratePasswordModal()" 
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        关闭
+                    </button>
+                    <button type="button" onclick="generateNewPassword()" 
+                            class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        重新生成
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入数据模态框 -->
+    <div id="importModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">导入数据</h3>
+                <form id="importForm" onsubmit="handleImport(event)">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">选择CSV文件</label>
+                            <input type="file" id="importFile" accept=".csv" required
+                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <p class="mb-2">CSV文件格式要求：</p>
+                            <ul class="list-disc list-inside space-y-1 text-xs">
+                                <li>标题, 网站, 用户名, 密码, 分类, 备注, 创建时间</li>
+                                <li>标题和密码为必填字段</li>
+                                <li>使用UTF-8编码</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeImportModal()"
+                                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            取消
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                            导入
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息提示 -->
+    <div id="toast" class="hidden fixed top-4 right-4 z-50">
+        <div class="bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i id="toastIcon" class="text-lg"></i>
+                </div>
+                <div class="ml-3">
+                    <p id="toastMessage" class="text-sm font-medium text-gray-900"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
