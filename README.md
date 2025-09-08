@@ -24,9 +24,5 @@ chmod +x start.sh
 2. 登录系统
 3. 添加和管理密码
 
-## 技术栈
-- Go + Gin
-- SQLite
-- HTML + TailwindCSS
-- JWT 认证
-- AES 加密
+<img width="1920" height="911" alt="image" src="https://github.com/user-attachments/assets/d66beb6c-c4ea-496e-bf99-f58121a4287f" />
+<img width="1920" height="911" alt="image" src="https://github.com/user-attachments/assets/00c5e815-6b5d-45b6-b59c-4f3be52a0ef1" />
