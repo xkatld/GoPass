@@ -23,7 +23,4 @@ jobs:
       run: go mod tidy
 
     - name: Build
-      run: chmod +x start.sh
-      
-    - name: Build
-      run: ./start.sh
+      run: go build -o gopass ./cmd/server
