@@ -1,5 +1,4 @@
-# .github/workflows/build-gop.yml
-name: Build GoPass for Linux AMD64
+name: Build GoPass
 
 on:
   push:
@@ -19,6 +18,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.21'
+        cache: true
 
     - name: Install dependencies
       run: go mod tidy
@@ -29,9 +29,7 @@ jobs:
         GOARCH: amd64
       run: |
         mkdir -p release
-
         go build -v -o release/gopass ./cmd/server
-
         cp -r web release/
 
     - name: Create archive
