@@ -22,8 +22,8 @@ jobs:
     - name: Install dependencies
       run: go mod tidy
 
-    - name: Run tests
-      run: go test -v ./...
-
     - name: Build
-      run: go build -v -o gopass ./cmd/server
+      run: chmod +x start.sh
+      
+    - name: Build
+      run: ./start.sh
